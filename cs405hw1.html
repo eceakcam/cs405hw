@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Visualization</title>
+    <style>
+        .legend {
+            font-size: 12px;
+        }
+        .legend rect {
+            width: 20px;
+            height: 20px;
+            stroke-width: 1;
+            stroke: #000;
+        }
+        .legend text {
+            dominant-baseline: middle;
+            margin-left: 5px;
+        }
+        .chart {
+            width: 100%;
+            height: 90vh;
+            padding: 40px;
+            padding-left: 20px;
+        }
+        .bar {
+            fill: steelblue;
+        }
+        .barMar {
+            fill: rgb(237, 138, 209);
+        }
+        .barSingle {
+            fill: rgb(197, 7, 235);
+        }
+        .barWid {
+            fill: rgb(7, 235, 106);
+        }
+        .bar text {
+            font-size: 8px;
+            text-anchor: middle;
+            fill: #fff;
+        }
+        .axis-label {
+            font-size: 20px;
+            font-weight: bold;
+            text-anchor: end;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="chart" id="chart"></div>
+
+    <script>
+        const data = [
+            { year: 2015, status: 'Single', deaths: 1227 },
+            { year: 2015, status: 'Divorced', deaths: 233 },
+            { year: 2015, status: 'Widowed', deaths: 149 },
+            { year: 2015, status: 'Married', deaths: 1634 },
+            { year: 2016, status: 'Single', deaths: 1199 },
+            { year: 2016, status: 'Divorced', deaths: 230 },
+            { year: 2016, status: 'Widowed', deaths: 150 },
+            { year: 2016, status: 'Married', deaths: 1613 },
+            { year: 2017, status: 'Single', deaths: 1160 },
+            { year: 2017, status: 'Divorced', deaths: 279 },
+            { year: 2017, status: 'Widowed', deaths: 158 },
+            { year: 2017, status: 'Married', deaths: 1571 },
+            { year: 2018, status: 'Single', deaths: 1239 },
+            { year: 2018, status: 'Divorced', deaths: 298 },
+            { year: 2018, status: 'Widowed', deaths: 174 },
+            { year: 2018, status: 'Married', deaths: 1622 },
+            { year: 2019, status: 'Single', deaths: 1301 },
+            { year: 2019, status: 'Divorced', deaths: 311 },
+            { year: 2019, status: 'Widowed', deaths: 187 },
+            { year: 2019, status: 'Married', deaths: 1672 },
+            { year: 2020, status: 'Single', deaths: 1434 },
+            { year: 2020, status: 'Divorced', deaths: 358 },
+            { year: 2020, status: 'Widowed', deaths: 214 },
+            { year: 2020, status: 'Married', deaths: 1692 },
+            { year: 2021, status: 'Single', deaths: 1705 },
+            { year: 2021, status: 'Divorced', deaths: 381 },
+            { year: 2021, status: 'Widowed', deaths: 188 },
+            { year: 2021, status: 'Married', deaths: 1913 }
+        ];
+
+        const chartContainer = document.getElementById('chart');
+        const chartWidth = chartContainer.clientWidth;
+        const chartHeight = chartContainer.clientHeight;
+        const barPadding = 10;
+        const yAxisLabelOffset = 40;
+        const axisLineWidth = 2;
+
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('viewBox', `0 0 ${chartWidth} ${chartHeight}`);
+        svg.style.width = '100%';
+        svg.style.height = '100%';
+
+        const maxDeaths = Math.max(...data.map(item => item.deaths));
+        const barWidth = (chartWidth - (barPadding * (data.length - 1))) / data.length;
+
+        const xAxisLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        xAxisLine.setAttribute('x1', 0);
+        xAxisLine.setAttribute('y1', chartHeight - yAxisLabelOffset);
+        xAxisLine.setAttribute('x2', chartWidth);
+        xAxisLine.setAttribute('y2', chartHeight - yAxisLabelOffset);
+        xAxisLine.setAttribute('stroke', 'black');
+        xAxisLine.setAttribute('stroke-width', axisLineWidth);
+        svg.appendChild(xAxisLine);
+
+        const yAxisLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        yAxisLine.setAttribute('x1', axisLineWidth / 2);
+        yAxisLine.setAttribute('y1', 19);
+        yAxisLine.setAttribute('x2', axisLineWidth / 2);
+        yAxisLine.setAttribute('y2', chartHeight - yAxisLabelOffset);
+        yAxisLine.setAttribute('stroke', 'black');
+        yAxisLine.setAttribute('stroke-width', axisLineWidth); 
+        svg.appendChild(yAxisLine);
+
+        for (let i = 0; i < data.length; i++) {
+                const bar = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+
+                const x = i * (barWidth + barPadding);
+                const y = chartHeight - (data[i].deaths / maxDeaths * (chartHeight - yAxisLabelOffset));
+
+                bar.setAttribute('x', x);
+                bar.setAttribute('y', y-1);
+                bar.setAttribute('width', barWidth);
+                bar.setAttribute('height', (chartHeight - y - yAxisLabelOffset));
+                bar.setAttribute('class', 'bar');
+
+                if (data[i].status=='Widowed') {
+                    bar.setAttribute('class', 'barWid');
+                }
+                if (data[i].status=='Single') {
+                    bar.setAttribute('x', x+3);
+                    bar.setAttribute('class', 'barSingle');
+                    
+                }
+                if (data[i].status=='Married') {
+                    bar.setAttribute('class', 'barMar');
+                }
+
+                text.setAttribute('x', x + barWidth / 9);
+                text.setAttribute('y', y - 10);
+                text.textContent = data[i].deaths;
+
+
+                svg.appendChild(bar);
+                svg.appendChild(text);
+
+        }
+
+        // X-axis label
+        const xAxisLabel15 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        const xAxisLabel16 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        const xAxisLabel17 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        const xAxisLabel18 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        const xAxisLabel19 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        const xAxisLabel20 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        const xAxisLabel21 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        const years = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+
+        years.setAttribute('x', chartWidth * (14.5/14));
+        years.setAttribute('y', chartHeight - 25);
+        years.setAttribute('class', 'axis-label');
+        years.textContent = 'Years';
+        svg.appendChild(years);
+
+
+        xAxisLabel15.setAttribute('x', chartWidth * (1/14));
+        xAxisLabel15.setAttribute('y', chartHeight - 10);
+        xAxisLabel15.setAttribute('class', 'axis-label');
+
+        xAxisLabel16.setAttribute('x', chartWidth *(3/14));
+        xAxisLabel16.setAttribute('y', chartHeight - 10);
+        xAxisLabel16.setAttribute('class', 'axis-label');
+
+        xAxisLabel17.setAttribute('x', chartWidth * (5/14));
+        xAxisLabel17.setAttribute('y', chartHeight - 10);
+        xAxisLabel17.setAttribute('class', 'axis-label');
+
+        xAxisLabel18.setAttribute('x', chartWidth*(7/14));
+        xAxisLabel18.setAttribute('y', chartHeight - 10);
+        xAxisLabel18.setAttribute('class', 'axis-label');
+
+        xAxisLabel19.setAttribute('x', chartWidth*(9/14));
+        xAxisLabel19.setAttribute('y', chartHeight - 10);
+        xAxisLabel19.setAttribute('class', 'axis-label');
+
+        xAxisLabel20.setAttribute('x', chartWidth*(11/14) );
+        xAxisLabel20.setAttribute('y', chartHeight - 10);
+        xAxisLabel20.setAttribute('class', 'axis-label');
+
+
+        xAxisLabel21.setAttribute('x', chartWidth*(13/14));
+        xAxisLabel21.setAttribute('y', chartHeight - 10);
+        xAxisLabel21.setAttribute('class', 'axis-label');
+
+        xAxisLabel15.textContent = '2015';
+        svg.appendChild(xAxisLabel15);
+        xAxisLabel16.textContent = '2016';
+        svg.appendChild(xAxisLabel16);
+        xAxisLabel17.textContent = '2017';
+        svg.appendChild(xAxisLabel17);
+        xAxisLabel18.textContent = '2018';
+        svg.appendChild(xAxisLabel18);
+        xAxisLabel19.textContent = '2019';
+        svg.appendChild(xAxisLabel19);
+        xAxisLabel20.textContent = '2020';
+        svg.appendChild(xAxisLabel20);
+        xAxisLabel21.textContent = '2021';
+        svg.appendChild(xAxisLabel21);
+        const marriedDeaths = data.filter(item => item.status === 'Married').map(item => item.deaths);
+
+
+        const yAxisLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        yAxisLabel.setAttribute('x', (chartHeight / 4.3)); 
+        yAxisLabel.setAttribute('y', 20);  
+        yAxisLabel.setAttribute('class', 'axis-label');
+        yAxisLabel.textContent = 'Number of Deaths';
+        svg.appendChild(yAxisLabel);
+
+        chartContainer.appendChild(svg);
+
+
+
+const legendData = [
+    { color: 'rgb(237, 138, 209)', status: 'Married' },
+    { color: 'rgb(197, 7, 235)', status: 'Single' },
+    { color: 'rgb(7, 235, 106)', status: 'Widowed' },
+    { color: 'steelblue', status: 'Divorced' }
+];
+
+// Legend Positioning
+const legendX = 20;
+const legendY = 40 ;
+const legendSpacing = 25;
+
+// Create Legend
+const legend = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+legend.setAttribute('class', 'legend');
+
+legendData.forEach((item, index) => {
+    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('x', legendX);
+    rect.setAttribute('y', legendY + (index * legendSpacing));
+    rect.setAttribute('width', 20);
+    rect.setAttribute('height', 20);
+    rect.setAttribute('fill', item.color);
+    legend.appendChild(rect);
+
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', legendX + 25);
+    text.setAttribute('y', legendY + (index * legendSpacing) + 10);
+    text.textContent = item.status;
+    legend.appendChild(text);
+});
+
+svg.appendChild(legend);
+
+function calculateTrendPoints(status) {
+    return data.filter(item => item.status === status).map(item => {
+        const x = data.indexOf(item) * (barWidth + barPadding) + (barWidth / 2);
+        const y = chartHeight - (item.deaths / maxDeaths * (chartHeight - yAxisLabelOffset));
+        return [x, y];
+    });
+}
+
+const statuses = ["Married", "Single", "Widowed", "Divorced"];
+const statusColors = {
+    "Married": "rgb(237, 138, 209)",
+    "Single": "rgb(197, 7, 235)",
+    "Widowed": "rgb(7, 235, 106)",
+    "Divorced": "steelblue"
+};
+
+statuses.forEach(status => {
+    const trendPoints = calculateTrendPoints(status);
+    const pathData = trendPoints.map((point, index) => {
+        return (index === 0 ? 'M' : 'L') + point.join(',');
+    }).join(' ');
+
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', pathData);
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke', statusColors[status]);
+    path.setAttribute('stroke-width', 2);
+    path.setAttribute('stroke-dasharray', 5, 5); 
+    svg.appendChild(path);
+});
+
+
+    </script>
+</body>
+</html>
